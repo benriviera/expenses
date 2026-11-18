@@ -19,12 +19,18 @@
   iframe.on{opacity:1}
   .splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#E7F0EC;font:600 18px system-ui,-apple-system,sans-serif}
   .splash img{width:96px;height:96px;border-radius:24px}
+  .rescue{position:fixed;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));max-width:420px;margin:0 auto;background:#fff;color:#1E2622;border-radius:16px;padding:18px;box-shadow:0 12px 32px rgba(4,20,15,.35);font:15px/1.45 system-ui,-apple-system,sans-serif;text-align:center}
+  .rescue b{display:block;font-size:17px;margin-bottom:4px}
+  .rescue a{display:block;margin-top:14px;background:#0E3B2E;color:#fff;text-decoration:none;font-weight:600;padding:14px;border-radius:12px}
+  .rescue a:focus-visible{outline:3px solid #C8962E;outline-offset:2px}
+  [hidden]{display:none!important}
   @media (prefers-reduced-motion:reduce){iframe{transition:none}}
 </style>
 </head>
 <body>
 <div class="splash"><img src="icon-192.png" alt=""><span>Expenses</span></div>
 <iframe id="app" title="Expenses" allow="camera; clipboard-write"></iframe>
+<div class="rescue" id="rescue" hidden role="alert"><b>Expenses didn't open here</b>Some phones block it inside this screen. Open it directly instead.<a id="direct" href="#" target="_top">Tap to open Expenses</a></div>
 <script>
   const APP = 'https://script.google.com/macros/s/AKfycbwvArabNHUFE-6CVJwPu4u7Ty-MCrSuEM5l8B-w_PN9wDRnHOooxjaADZi28-MLP2CmWQ/exec';
   const get = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
@@ -34,12 +40,18 @@
   if (get('n')) q.set('n', get('n'));
   const f = document.getElementById('app');
   f.onload = () => f.classList.add('on');
-  f.src = APP + (q.toString() ? '?' + q : '');
+  const url = APP + (q.toString() ? '?' + q : '');
+  f.src = url;
+  document.getElementById('direct').href = url;
+  // If the app hasn't said hello after a few seconds, offer to open it directly
+  let ready = false;
+  setTimeout(() => { if (!ready) document.getElementById('rescue').hidden = false; }, 7000);
   // The app tells us who is claiming, so it is remembered on this phone
   addEventListener('message', e => {
     if (!/\.googleusercontent\.com$|\.google\.com$/.test(new URL(e.origin).hostname)) return;
     const d = e.data || {};
     if (!d.riviExp) return;
+    if (d.ready) { ready = true; document.getElementById('rescue').hidden = true; }
     if (typeof d.company === 'string') set('c', d.company);
     if (typeof d.name === 'string') set('n', d.name);
   });
