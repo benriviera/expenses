@@ -36,8 +36,8 @@
   const get = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
   const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   const q = new URLSearchParams();
-  if (get('c')) q.set('c', get('c'));
-  if (get('n')) q.set('n', get('n'));
+  if (get('c')) q.set('co', get('c'));
+  if (get('n')) q.set('nm', get('n'));
   const f = document.getElementById('app');
   f.onload = () => f.classList.add('on');
   const url = APP + (q.toString() ? '?' + q : '');
