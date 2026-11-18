@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Expenses</title>
+<meta name="theme-color" content="#0E3B2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Expenses">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root{color-scheme:light}
+  html,body{margin:0;height:100%;background:#0E3B2E;overflow:hidden}
+  iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#EDF0EC;opacity:0;transition:opacity .25s}
+  iframe.on{opacity:1}
+  .splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#E7F0EC;font:600 18px system-ui,-apple-system,sans-serif}
+  .splash img{width:96px;height:96px;border-radius:24px}
+  @media (prefers-reduced-motion:reduce){iframe{transition:none}}
+</style>
+</head>
+<body>
+<div class="splash"><img src="icon-192.png" alt=""><span>Expenses</span></div>
+<iframe id="app" title="Expenses" allow="camera; clipboard-write"></iframe>
+<script>
+  const APP = 'https://script.google.com/macros/s/AKfycbwvArabNHUFE-6CVJwPu4u7Ty-MCrSuEM5l8B-w_PN9wDRnHOooxjaADZi28-MLP2CmWQ/exec';
+  const get = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
+  const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const q = new URLSearchParams();
+  if (get('c')) q.set('c', get('c'));
+  if (get('n')) q.set('n', get('n'));
+  const f = document.getElementById('app');
+  f.onload = () => f.classList.add('on');
+  f.src = APP + (q.toString() ? '?' + q : '');
+  // The app tells us who is claiming, so it is remembered on this phone
+  addEventListener('message', e => {
+    if (!/\.googleusercontent\.com$|\.google\.com$/.test(new URL(e.origin).hostname)) return;
+    const d = e.data || {};
+    if (!d.riviExp) return;
+    if (typeof d.company === 'string') set('c', d.company);
+    if (typeof d.name === 'string') set('n', d.name);
+  });
+</script>
+</body>
+</html>
